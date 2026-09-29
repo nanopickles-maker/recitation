@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1e2a">
+  <meta name="description" content="A quiet, immersive reading space for The Long Way Up.">
+  <title>The Long Way Up — A Recitation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --night: #0b1e2a;
+      --night-soft: #122b38;
+      --cream: #f4efdf;
+      --cream-muted: #c9c8bc;
+      --sky: #a9c5c6;
+      --line: rgb(244 239 223 / 18%);
+      --mono: "DM Mono", monospace;
+      --sans: "DM Sans", sans-serif;
+      --serif: "Playfair Display", Georgia, serif;
+      --poem-size: 19px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      min-width: 320px;
+      scroll-behavior: smooth;
+      scrollbar-color: #627b7c var(--night);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: var(--night);
+      color: var(--cream);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      position: fixed;
+      z-index: -2;
+      inset: 0;
+      background-image: url("https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2400&q=90");
+      background-position: center;
+      background-size: cover;
+      content: "";
+      transform: translate3d(var(--drift-x, 0px), var(--drift-y, 0px), 0) scale(1.06);
+      filter: brightness(calc(.72 + var(--journey, 0) * .2)) saturate(calc(.78 + var(--journey, 0) * .22));
+      transition: filter 1.8s ease;
+    }
+
+    body::after {
+      position: fixed;
+      z-index: -1;
+      inset: 0;
+      background: radial-gradient(ellipse at calc(72% - var(--journey, 0) * 18%) 48%, rgb(226 190 128 / calc(var(--journey, 0) * 22%)), transparent 48%), linear-gradient(90deg, rgb(7 23 33 / 94%) 0%, rgb(9 27 38 / 85%) 42%, rgb(9 27 38 / 54%) 76%, rgb(9 27 38 / 23%) 100%), linear-gradient(0deg, rgb(7 20 29 / 76%), transparent 58%);
+      content: "";
+      transition: background 1.8s ease;
+    }
+
+    button {
+      color: inherit;
+      font: inherit;
+    }
+
+    .topbar {
+      position: sticky;
+      z-index: 5;
+      top: 0;
+      display: flex;
+      min-height: 68px;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      background: rgb(9 26 36 / 84%);
+      padding: 0 clamp(20px, 5vw, 76px);
+      backdrop-filter: blur(18px);
+    }
+
+    .wordmark,
+    .edition,
+    .top-actions,
+    .controls,
+    .progress-label,
+    .aside-caption {
+      display: flex;
+      align-items: center;
+    }
+
+    .wordmark { gap: 11px; }
+
+    .mark {
+      display: grid;
+      width: 27px;
+      height: 27px;
+      place-items: center;
+      border: 1px solid rgb(244 239 223 / 65%);
+      border-radius: 50%;
+      color: var(--cream);
+      font-family: var(--serif);
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .wordmark-name {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+
+    .edition {
+      gap: 12px;
+      color: var(--cream-muted);
+      font-family: var(--mono);
+      font-size: 10px;
+    }
+
+    .edition span + span::before {
+      margin-right: 12px;
+      color: rgb(244 239 223 / 38%);
+      content: "/";
+    }
+
+    .top-actions { gap: 9px; }
+
+    .tool-button {
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid rgb(244 239 223 / 25%);
+      border-radius: 2px;
+      background: rgb(11 30 42 / 35%);
+      padding: 0 13px;
+      color: var(--cream);
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+    }
+
+    .tool-button:hover,
+    .tool-button[aria-pressed="true"] {
+      border-color: var(--cream-muted);
+      background: rgb(244 239 223 / 11%);
+    }
+
+    .tool-button:focus-visible,
+    .line:focus-visible {
+      outline: 2px solid var(--sky);
+      outline-offset: 4px;
+    }
+
+    .tool-button .symbol {
+      color: var(--sky);
+      font-family: var(--serif);
+      font-size: 17px;
+      line-height: 1;
+    }
+
+    .layout {
+      display: grid;
+      width: min(1270px, calc(100% - 2 * clamp(24px, 8vw, 120px)));
+      grid-template-columns: minmax(0, 750px) minmax(180px, 1fr);
+      gap: clamp(54px, 10vw, 155px);
+      margin: 0 auto;
+      padding: clamp(54px, 8vh, 94px) 0 90px;
+    }
+
+    .poem { min-width: 0; }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 17px;
+      color: var(--sky);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 25px;
+      height: 1px;
+      background: var(--sky);
+      content: "";
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--cream);
+      font-family: var(--serif);
+      font-size: clamp(42px, 5.1vw, 66px);
+      font-weight: 500;
+      line-height: 1.12;
+    }
+
+    .subtitle {
+      margin: 14px 0 37px;
+      color: var(--cream-muted);
+      font-size: 14px;
+    }
+
+    .poem-text {
+      max-width: 625px;
+      border-top: 1px solid var(--line);
+      padding-top: 27px;
+      font-family: var(--serif);
+      font-size: var(--poem-size);
+      font-weight: 500;
+      line-height: 1.72;
+    }
+
+    .stanza {
+      margin: 0 0 27px;
+    }
+
+    .poem-section + .poem-section {
+      margin-top: 44px;
+      border-top: 1px solid var(--line);
+      padding-top: 27px;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin: 0 0 22px;
+      color: var(--cream);
+      font-family: var(--serif);
+      font-size: 25px;
+      font-weight: 500;
+      line-height: 1.25;
+    }
+
+    .section-heading span {
+      color: var(--sky);
+      font-family: var(--mono);
+      font-size: 10px;
+    }
+
+    .line {
+      display: block;
+      width: fit-content;
+      max-width: 100%;
+      color: var(--cream);
+      cursor: default;
+      transition: opacity 240ms ease, color 240ms ease;
+    }
+
+    .focus-ready .line { cursor: pointer; }
+    .focus-ready .line:hover { color: #fff9e9; }
+    .focus-ready .line:not(.is-focused) { opacity: .28; }
+    .focus-ready .line.is-focused { color: #fff9e9; }
+
+    .line.is-current {
+      color: #fff9e9;
+      text-shadow: 0 0 26px rgb(255 249 233 / 28%);
+    }
+
+    .line.is-current::before {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      margin: .78em 0 0 -17px;
+      border-radius: 50%;
+      background: var(--sky);
+      content: "";
+      animation: breathe 2.5s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      50% { opacity: .3; transform: scale(.7); }
+    }
+
+    .aside {
+      position: sticky;
+      top: 118px;
+      align-self: start;
+      margin-top: 175px;
+      padding-top: 20px;
+    }
+
+    .aside-caption {
+      justify-content: space-between;
+      color: var(--cream-muted);
+      font-family: var(--mono);
+      font-size: 10px;
+    }
+
+    .progress-number { color: var(--cream); }
+
+    .progress-track {
+      height: 2px;
+      margin: 14px 0 21px;
+      background: rgb(244 239 223 / 23%);
+    }
+
+    .progress-fill {
+      width: 0;
+      height: 100%;
+      background: var(--sky);
+      transition: width 180ms ease;
+    }
+
+    .aside-quote {
+      max-width: 260px;
+      margin: 0;
+      color: var(--cream-muted);
+      font-family: var(--serif);
+      font-size: 18px;
+      line-height: 1.55;
+    }
+
+    .aside-quote em {
+      color: var(--cream);
+      font-style: normal;
+    }
+
+    .controls {
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 27px;
+    }
+
+    .small-button {
+      min-width: 40px;
+      padding: 0 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .footnote {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 31px;
+      color: var(--cream-muted);
+      font-family: var(--mono);
+      font-size: 10px;
+    }
+
+    .footnote::before {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--sky);
+      content: "";
+    }
+
+    .pace-control {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 8px 12px;
+      margin-top: 20px;
+      color: var(--cream-muted);
+      font-family: var(--mono);
+      font-size: 10px;
+    }
+
+    .pace-control input {
+      width: 100%;
+      accent-color: var(--sky);
+      cursor: pointer;
+      grid-column: 1 / -1;
+    }
+
+    .pace-value { color: var(--cream); }
+
+    .journey-active .poem-text { border-top-color: rgb(169 197 198 / 48%); }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      clip-path: inset(50%);
+    }
+
+    @media (min-width: 1100px) {
+      .aside { margin-top: 235px; }
+    }
+
+    @media (max-width: 760px) {
+      body::after {
+        background: linear-gradient(90deg, rgb(7 23 33 / 93%) 0%, rgb(9 27 38 / 82%) 65%, rgb(9 27 38 / 61%) 100%), linear-gradient(0deg, rgb(7 20 29 / 75%), transparent 55%);
+      }
+
+      .topbar {
+        min-height: 60px;
+        padding: 0 17px;
+      }
+
+      .edition { display: none; }
+      .top-actions { gap: 6px; }
+
+      .tool-button {
+        min-height: 36px;
+        gap: 5px;
+        padding: 0 9px;
+        font-size: 11px;
+      }
+
+      .wordmark-name { font-size: 11px; }
+
+      .layout {
+        width: calc(100% - 40px);
+        grid-template-columns: minmax(0, 1fr);
+        gap: 42px;
+        padding: 49px 0 62px;
+      }
+
+      h1 { font-size: 46px; }
+      .subtitle { margin-bottom: 29px; }
+      .poem-text { font-size: max(17px, var(--poem-size)); }
+
+      .aside {
+        position: static;
+        margin-top: 0;
+        border-top: 1px solid var(--line);
+        padding-top: 17px;
+      }
+
+      .aside-quote { max-width: 360px; }
+    }
+
+    @media (max-width: 390px) {
+      .wordmark { gap: 7px; }
+      .mark { width: 24px; height: 24px; }
+      .tool-button { padding: 0 7px; }
+      .top-actions { gap: 4px; }
+      .top-actions .listen-label { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wordmark" aria-label="Quiet Pages">
+      <span class="mark" aria-hidden="true">q</span>
+      <span class="wordmark-name">QUIET PAGES</span>
+    </div>
+    <div class="edition" aria-label="Collection and reading number">
+      <span>POEMS FOR THE BECOMING</span>
+      <span>NO. 01</span>
+    </div>
+    <div class="top-actions">
+      <button class="tool-button" id="listenButton" type="button" title="Listen to a spoken reading">
+        <span class="symbol" aria-hidden="true">▷</span><span class="listen-label">Begin</span>
+      </button>
+      <button class="tool-button" id="fullscreenButton" type="button" title="Enter fullscreen">
+        <span class="symbol" aria-hidden="true">⛶</span><span class="fullscreen-label">Fullscreen</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <article class="poem" aria-labelledby="poemTitle">
+      <p class="eyebrow">A poem for the becoming</p>
+      <h1 id="poemTitle">The Long Way Up</h1>
+      <p class="subtitle">A breath between each step.</p>
+
+      <div class="poem-text" id="poemText">
+        <section class="poem-section" id="section-one" aria-label="Section one">
+        <p class="stanza">
+          <span class="line">every morning the mountain waits,</span>
+          <span class="line">patient as a held breath.</span>
+          <span class="line">It does not ask how fast I climb,</span>
+          <span class="line">only that I climb at all.</span>
+        </p>
+        <p class="stanza">
+          <span class="line">I stumble, and the stones remember.</span>
+          <span class="line">I rest, and the wind forgives.</span>
+          <span class="line">Falling is not the end of the road,</span>
+          <span class="line">only the road teaching me its shape.</span>
+        </p>
+        <p class="stanza final-stanza">
+          <span class="line">The summit was never the promise.</span>
+          <span class="line">The promise was the one who kept going.</span>
+        </p>
+        </section>
+        <section class="poem-section" id="section-two" aria-labelledby="sectionTwoTitle">
+          <h2 class="section-heading" id="sectionTwoTitle"><span>02</span> The dream beside me</h2>
+          <p class="stanza">
+            <span class="line">Every morning the mountain waits,</span>
+            <span class="line">patient as a held breath.</span>
+            <span class="line">It does not ask how fast I climb,</span>
+            <span class="line">only that I climb at all.</span>
+          </p>
+          <p class="stanza">
+            <span class="line">My dream did not arrive with trumpets.</span>
+            <span class="line">It came quietly, folded small,</span>
+            <span class="line">and asked me to walk beside it,</span>
+            <span class="line">so I walked.</span>
+          </p>
+          <p class="stanza">
+            <span class="line">I stumble, and the stones remember.</span>
+            <span class="line">I rest, and the wind forgives.</span>
+            <span class="line">Falling is not the end of the road,</span>
+            <span class="line">only the road teaching me its shape.</span>
+          </p>
+          <p class="stanza">
+            <span class="line">Some evenings the path disappears,</span>
+            <span class="line">and the clouds hide the top from me.</span>
+            <span class="line">But I build the road again,</span>
+            <span class="line">one small step at a time.</span>
+          </p>
+          <p class="stanza">
+            <span class="line">The summit was never the promise.</span>
+            <span class="line">The promise was the one who kept going.</span>
+            <span class="line">So if you are tired, unsure, and small,</span>
+            <span class="line">take the step. The mountain is waiting.</span>
+          </p>
+        </section>
+      </div>
+    </article>
+
+    <aside class="aside" aria-label="Reading progress and controls">
+      <div class="aside-caption">
+        <span>YOUR PLACE</span>
+        <span class="progress-number" id="progressNumber">01 / 03</span>
+      </div>
+      <div class="progress-track" role="progressbar" id="progressBar" aria-label="Poem reading progress" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <p class="aside-quote">“The promise was the one who <em>kept going.</em>”</p>
+      <div class="controls" aria-label="Reading settings">
+        <button class="tool-button small-button" id="smallerButton" type="button" title="Decrease poem text size">A−</button>
+        <button class="tool-button small-button" id="largerButton" type="button" title="Increase poem text size">A+</button>
+        <button class="tool-button small-button" id="focusButton" type="button" title="Focus one line" aria-pressed="false">Focus</button>
+      </div>
+      <label class="pace-control" for="breathRange">
+        <span>BREATH BETWEEN LINES</span>
+        <span class="pace-value" id="paceValue">2.5 sec</span>
+        <input id="breathRange" type="range" min="2" max="5" step="0.5" value="2.5" aria-label="Seconds to pause between lines">
+      </label>
+      <p class="footnote" id="readingStatus" aria-live="polite">Move gently through the lines</p>
+    </aside>
+  </main>
+
+  <script>
+    const poemText = document.querySelector("#poemText");
+    const stanzas = [...document.querySelectorAll(".stanza")];
+    const lines = [...document.querySelectorAll(".line")];
+    const progressFill = document.querySelector("#progressFill");
+    const progressNumber = document.querySelector("#progressNumber");
+    const progressBar = document.querySelector("#progressBar");
+    const readingStatus = document.querySelector("#readingStatus");
+    const listenButton = document.querySelector("#listenButton");
+    const breathRange = document.querySelector("#breathRange");
+    const paceValue = document.querySelector("#paceValue");
+    let poemSize = 19;
+    let utterance;
+
+    function updateProgress() {
+      const midpoint = window.innerHeight * 0.42;
+      let current = 0;
+
+      stanzas.forEach((stanza, index) => {
+        if (stanza.getBoundingClientRect().top <= midpoint) current = index;
+      });
+
+      const progress = ((current + 1) / stanzas.length) * 100;
+      progressFill.style.width = `${progress}%`;
+      progressNumber.textContent = `${String(current + 1).padStart(2, "0")} / ${String(stanzas.length).padStart(2, "0")}`;
+      progressBar.setAttribute("aria-valuenow", current + 1);
+      progressBar.setAttribute("aria-valuemax", stanzas.length);
+      document.documentElement.style.setProperty("--journey", String((window.scrollY / Math.max(1, document.documentElement.scrollHeight - window.innerHeight)).toFixed(3)));
+    }
+
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    window.addEventListener("resize", updateProgress);
+    updateProgress();
+
+    window.addEventListener("pointermove", (event) => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const driftX = ((event.clientX / window.innerWidth) - 0.5) * -12;
+      const driftY = ((event.clientY / window.innerHeight) - 0.5) * -8;
+      document.documentElement.style.setProperty("--drift-x", `${driftX.toFixed(1)}px`);
+      document.documentElement.style.setProperty("--drift-y", `${driftY.toFixed(1)}px`);
+    }, { passive: true });
+
+    document.querySelector("#focusButton").addEventListener("click", (event) => {
+      const enabled = event.currentTarget.getAttribute("aria-pressed") !== "true";
+      event.currentTarget.setAttribute("aria-pressed", String(enabled));
+      poemText.classList.toggle("focus-ready", enabled);
+      readingStatus.textContent = enabled ? "Choose a line to hold in focus" : "A quiet place to find your pace";
+      if (!enabled) lines.forEach((line) => line.classList.remove("is-focused"));
+    });
+
+    lines.forEach((line) => {
+      line.addEventListener("click", () => {
+        if (!poemText.classList.contains("focus-ready")) return;
+        lines.forEach((otherLine) => otherLine.classList.toggle("is-focused", otherLine === line));
+      });
+      line.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          line.click();
+        }
+      });
+      line.tabIndex = 0;
+    });
+
+    document.querySelector("#smallerButton").addEventListener("click", () => {
+      poemSize = Math.max(16, poemSize - 1);
+      document.documentElement.style.setProperty("--poem-size", `${poemSize}px`);
+    });
+
+    document.querySelector("#largerButton").addEventListener("click", () => {
+      poemSize = Math.min(27, poemSize + 1);
+      document.documentElement.style.setProperty("--poem-size", `${poemSize}px`);
+    });
+
+    breathRange.addEventListener("input", () => {
+      paceValue.textContent = `${Number(breathRange.value).toFixed(1)} sec`;
+    });
+
+    function stopReading() {
+      window.speechSynthesis.cancel();
+      utterance = undefined;
+      listenButton.innerHTML = '<span class="symbol" aria-hidden="true">▷</span><span class="listen-label">Listen</span>';
+      listenButton.title = "Listen to a spoken reading";
+      readingStatus.textContent = "A quiet place to find your pace";
+    }
+
+    listenButton.addEventListener("click", () => {
+      if (!("speechSynthesis" in window)) {
+        readingStatus.textContent = "Spoken reading is not available in this browser";
+        return;
+      }
+
+      if (window.speechSynthesis.speaking) {
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+          listenButton.innerHTML = '<span class="symbol" aria-hidden="true">Ⅱ</span><span class="listen-label">Pause</span>';
+          listenButton.title = "Pause spoken reading";
+          readingStatus.textContent = "Spoken reading in progress";
+        } else {
+          window.speechSynthesis.pause();
+          listenButton.innerHTML = '<span class="symbol" aria-hidden="true">▷</span><span class="listen-label">Resume</span>';
+          listenButton.title = "Resume spoken reading";
+          readingStatus.textContent = "Spoken reading paused";
+        }
+        return;
+      }
+
+      utterance = new SpeechSynthesisUtterance([...lines].map((line) => line.textContent).join("\n"));
+      utterance.rate = 0.82;
+      utterance.onend = stopReading;
+      utterance.onerror = stopReading;
+      window.speechSynthesis.speak(utterance);
+      listenButton.innerHTML = '<span class="symbol" aria-hidden="true">Ⅱ</span><span class="listen-label">Pause</span>';
+      listenButton.title = "Pause spoken reading";
+      readingStatus.textContent = "Spoken reading in progress";
+    });
+
+    document.querySelector("#fullscreenButton").addEventListener("click", async (event) => {
+      try {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        } else {
+          await document.documentElement.requestFullscreen();
+        }
+      } catch {
+        readingStatus.textContent = "Fullscreen is not available in this browser";
+      }
+      const active = Boolean(document.fullscreenElement);
+      event.currentTarget.querySelector(".fullscreen-label").textContent = active ? "Exit full" : "Fullscreen";
+      event.currentTarget.title = active ? "Exit fullscreen" : "Enter fullscreen";
+    });
+
+    document.addEventListener("fullscreenchange", () => {
+      const button = document.querySelector("#fullscreenButton");
+      const active = Boolean(document.fullscreenElement);
+      button.querySelector(".fullscreen-label").textContent = active ? "Exit full" : "Fullscreen";
+      button.title = active ? "Exit fullscreen" : "Enter fullscreen";
+    });
+
+    window.addEventListener("pagehide", () => window.speechSynthesis?.cancel());
+  </script>
+</body>
+</html>
